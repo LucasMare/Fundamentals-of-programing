@@ -1,5 +1,5 @@
-from service import intersection, isLeapYear, isValidDate, checkDateFormat, parseDate, checkIfStringFloat, addPackageToList, filterByDestination, filterByPrice, destinationComparator
-from domain import createTravelPackage, createTravelPackagesDataStructure, getTravelPackagesList, getDestination, getPrice, appendCurrentListToHist
+from service import intersection, isLeapYear, isValidDate, parseDate, addPackageToList, filterByDestination, filterByPrice, destinationComparator, parsePrice
+from domain import createTravelPackage, createTravelPackagesDataStructure, getTravelPackagesList, getDestination, getPrice, appendCurrentListToHist, getStartDate, getEndDate, modifyStartDate, modifyEndDate, modifyDestination, modifyPrice
 
 def testIntersection():
     assert intersection([1,2,3],["a",2,{}]) == [2]
@@ -16,23 +16,26 @@ def testIsValidDate():
     assert isValidDate(50,15,9999) == False
     assert isValidDate(29,2,1900) == False
 
-def testCheckDateFormat():
-    assert checkDateFormat("19/04/1954") == True
-    assert checkDateFormat("akshdf") == False
-    assert checkDateFormat("19.7.2026") == False
-    assert checkDateFormat("99/18/8375") == False
-
 def testParseDate():
     assert parseDate("10/9/2008") == {
         "day": 10,
         "month": 9,
         "year": 2008 
     }
+    try:
+        parseDate("99/1/2424")
+        assert False
+    except ValueError:
+        assert True
 
-def testCheckIfStringIsFloat():
-    assert checkIfStringFloat("19.20") == True
-    assert checkIfStringFloat("1920") == True
-    assert checkIfStringFloat("plsajf") == False
+def testParsePrice():
+    assert parsePrice("19.20") == 19.20
+    assert parsePrice("1920") == 1920
+    try:    
+        parsePrice("sjkdfh")
+        assert False
+    except ValueError:
+        assert True 
 
 def testCreateTravelPackage():
     assert createTravelPackage() == {
@@ -97,16 +100,47 @@ def testFilterByDestination():
     assert filterByDestination (getTravelPackagesList(structure), "Paris", True) == [{"start_date": None, "end_date": None, "destination": "Paris", "price": 0}]
     assert filterByDestination (getTravelPackagesList(structure), "Baia Mare", False) == [{"start_date": None, "end_date": None, "destination": "Paris", "price": 0},{ "start_date": None, "end_date": None, "destination": "France", "price": 0},{ "start_date": None, "end_date": None, "destination": "Sasar", "price": 0}]
 
-def testFunction ():
+#Incomplete
+def testGetStartDate():
+    package = createTravelPackage()
+    assert getStartDate(package) == None
+
+#Incomplete
+def testGetEndDate():
+    package = createTravelPackage()
+    assert getEndDate(package) == None
+
+#Incomplete
+def testModifyStartDate():
+    package = createTravelPackage()
+    modifyStartDate(package, {"day":3, "month":10, "year":2000})
+    assert getStartDate(package) == {"day":3, "month":10, "year":2000}
+
+#Incomplete
+def testModifyEndDate():
+    package = createTravelPackage()
+    modifyEndDate(package, {"day":3, "month":10, "year":2000})
+    assert getEndDate(package) == {"day":3, "month":10, "year":2000}
+
+def testModifyDestination():
+    package = createTravelPackage()
+    modifyDestination(package, "yeahhh")
+    assert getDestination(package) == "yeahhh"
+
+def testModifyPrice():
+    package = createTravelPackage()
+    modifyPrice(package, 1984)
+    assert getPrice(package) == 1984
+
+def testFunction():
     testIntersection()
     testIsLeapYear()
     testIsValidDate()
-    testCheckDateFormat()
     testParseDate()
     testCreateTravelPackage()
     testCreateTravelPackagesDataStructure()
     testGetTravelPackagesList()
-    testCheckIfStringIsFloat()
+    testParsePrice()
     testAppendCurrentListToHist()
     testAddPackageToList()
     testGetPrice()
@@ -114,3 +148,9 @@ def testFunction ():
     testFilterByPrice()
     testGetDestination()
     testFilterByDestination()
+    testGetStartDate()
+    testGetEndDate()
+    testModifyStartDate()
+    testModifyEndDate()
+    testModifyDestination()
+    testModifyPrice()

@@ -34,6 +34,24 @@ def getTravelPackagesList(travel_packages):
     """
     return travel_packages["list"]
 
+def getStartDate(travel_package):
+    """
+    Function that returns the start date of a travel package
+    :params: a travel_package
+    :returns: the value of start_date
+    :raises:
+    """
+    return travel_package["start_date"]
+
+def getEndDate(travel_package):
+    """
+    Function that returns the end date of a travel package
+    :params: a travel_package
+    :returns: the value of end_date
+    :raises:
+    """
+    return travel_package["end_date"]
+
 def getPrice(travel_package):
     """
     Function that returns the price of a given travel package
@@ -51,6 +69,42 @@ def getDestination(travel_package):
         :raises:
     """
     return travel_package["destination"]
+
+def modifyStartDate(travel_package, new_start_date:dict):
+    """
+    Function that gets a travel package and a dictionary with the keys "day", "month, "year" and modifies the start date of the package to the given dictionary
+    :params: a travel package, a dictionary
+    :returns: 
+    :raises:
+    """
+    travel_package["start_date"] = new_start_date
+
+def modifyEndDate(travel_package, new_end_date:dict):
+    """
+    Function that gets a travel package and a dictionary with the keys "day", "month, "year" and modifies the end date of the package to the given dictionary
+    :params: a travel package, a dictionary
+    :returns: 
+    :raises:
+    """
+    travel_package["end_date"] = new_end_date
+
+def modifyDestination(travel_package, new_dest:str):
+    """
+    Function that modifies the destination of a travel package
+    :params: a travel package, a string representing a destination
+    :returns:
+    :raises:
+    """
+    travel_package["destination"] = new_dest
+
+def modifyPrice(travel_package, new_price:float):
+    """
+    Function that modifies the price of a travel package
+    :params: a travel package, a float representing a price
+    :returns:
+    :raises:
+    """
+    travel_package["price"] = new_price
 
 def appendCurrentListToHist(travel_package_structure):
     """

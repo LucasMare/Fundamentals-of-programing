@@ -51,54 +51,41 @@ def isValidDate(day, month, year):
     if 0 > day or day > days_per_month[str(month)]: return False
     return True 
 
-def checkDateFormat(date_string):
-    """
-    Checks if a string is a valid date with the format dd/mm/yyyy
-    :params: a string
-    :returns: True or False
-    :raises:
-    """
-    split_date = date_string.split("/")
-    if len(split_date) != 3: return False
-    
-    try: day = int(split_date[0])
-    except: return False
-    
-    try: month = int(split_date[1])
-    except: return False
-    
-    try: year = int(split_date[2])
-    except: return False
-
-    return isValidDate(day, month, year)
-
-def parseDate(c):
+def parseDate(date_string):
     """
     Function that gets a string that represents a valid date with the format dd/mm/yyyy and outputs a dictionary with the keys "day", "month", "year" and their respective values 
     :params: a string
     :returns: a dictionary
-    :raises:
+    :raises: ValueError if date or date format is invalid
     """
-    date = {}
-    c = c.split('/')
-    date["day"] = int(c[0])
-    date["month"] = int(c[1])
-    date["year"] = int(c[2])
-    return date
+    try:
+        split_date = date_string.split("/")
+        assert len(split_date) == 3
+        
+        day = int(split_date[0])
+        month = int(split_date[1])
+        year = int(split_date[2])
 
-def checkIfStringFloat (num_string:str):
+        assert isValidDate(day, month, year)
+        date = {}
+        date["day"] = int(split_date[0])
+        date["month"] = int(split_date[1])
+        date["year"] = int(split_date[2])
+        return date
+    except:
+        raise ValueError("Invalid date or date format!")
+
+def parsePrice (num_string:str):
     """
-    Function that checks whether a string can be converted to a float, and returns True or False accordingly
+    Function that checks whether a string can be converted to a float
     :params: a string
-    :returns: True or False
-    :raises:
+    :returns: 
+    :raises: ValueError if string is not convertable to a float
     """
-    fl = num_string
-    try: 
-        fl = float(fl)
-        return True
+    try:
+        return round(float(num_string), 2)
     except: 
-        return False
+        raise ValueError("Invalid price, please enter a number!")
 
 def addPackageToList(travel_package_list, travel_package):
     """

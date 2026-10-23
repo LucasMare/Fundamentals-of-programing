@@ -1,5 +1,5 @@
-from domain import createTravelPackage, createTravelPackagesDataStructure, appendCurrentListToHist, getTravelPackagesList
-from service import addPackageToList, filterByPrice, filterByDestination, intersection, checkDateFormat, parseDate, checkIfStringFloat
+from domain import createTravelPackage, createTravelPackagesDataStructure, appendCurrentListToHist, getTravelPackagesList, modifyStartDate, modifyEndDate, modifyDestination, modifyPrice
+from service import addPackageToList, filterByPrice, filterByDestination, intersection, parseDate, parsePrice
 from tests import testFunction
 
 
@@ -41,14 +41,15 @@ First iteration:
         - implementing an undo function
 
 Second iteration:
-    - refactoring error handling when inputing invalid data for the price and date of a travel package
+    - refactoring error handling when inputing invalid data for the price and dates of a travel package
     - refactoring date parsing into one method instead of two
     - modularising the code
     - making all methods adhere to the single responsability rule
-    - implementing the abilty to modifyi a travel package
+    - implementing the abilty to modify a travel package
     - implementing further filter options
     - implementing search features 
     - rewriting some flawed tests
+    
     
 """
 
@@ -87,12 +88,14 @@ def inputDate():
     Function that gets as input from user a string that represents a date, checks if it is valid and than returns a dictionary with the keys "day", "month", "year" and their respective values
     :params: None
     :returns: a dictionary
-    :raises:
+    :raises: 
     """
-    c = input()
-    while checkDateFormat(c) == False:
-        c = input("Invalid date, please enter a valid date with the format dd/mm/yyyy: ")
-    date = parseDate(c)
+    date = True
+    while date:
+        try:
+            date = parseDate(input())
+        except Exception as error:
+                print (error)
     return date
 
 def inputPrice():
@@ -102,17 +105,19 @@ def inputPrice():
     :returns: a float with two decimals
     :raises:
     """
-    p = input()
-    while checkIfStringFloat(p) == False:
-        p = input ("Invalid price value! Enter another one: ")
-    return round(float(p), 2)
+    price = True
+    while price:
+        try:
+            price = parsePrice(input())
+        except Exception as error:
+            print (error)
+    return price
 
 def inputDestination():
     """
     Function that inputs a string representing a destination and returns it
     """
-    c = input()
-    return c
+    return input()
 
 def inputTravelPackage():
     """
@@ -121,17 +126,23 @@ def inputTravelPackage():
     :returns: 
     :raises:
     """
+    
     package = createTravelPackage()
     print("Input the start date of the travel (dd/mm/yyyy): ")
-    package["start_date"] = inputDate()
+    modifyStartDate(package,inputDate())
+    
     print("Input the end date of the travel (dd/mm/yyyy): ")
-    package["end_date"] = inputDate()
+    modifyEndDate(package, inputDate())
+
     print("Input a destination: ")
-    package["destination"] = inputDestination()
+    modifyDestination(package, inputDestination())
+    
     print("Input the price of the travel: ")
-    package["price"] = inputPrice()
+    modifyPrice(package,inputPrice())
+    
     return package
 
+    
 def endProgram():
     print ("See you later aligator!")
     exit()
@@ -171,7 +182,7 @@ def addMenu(travel_packages_structure):
                 new_package = inputTravelPackage()
                 addPackageToList(getTravelPackagesList(travel_packages_structure), new_package)
                 appendCurrentListToHist(travel_packages_structure)
-                print (f"Current list of travel packages is:\n {travel_packages_structure["list"]}")
+                print (f"Current list of travel packages is:\n {getTravelPackagesList(travel_packages_structure)}")
             case _: print ("Invalid command!")
 
 def filtrationMenu(travel_packages_structure):
@@ -195,9 +206,9 @@ def filtrationMenu(travel_packages_structure):
                 print(f"Here is the filtered list:\n {filtered_list}")
             
 
-#if __name__ == "main":
-testFunction()
-menu()
+if __name__ == '__main__':
+    testFunction()
+    menu()
 
 
 
