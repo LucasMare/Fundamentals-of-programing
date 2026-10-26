@@ -13,26 +13,13 @@ def createTravelPackagesDataStructure():
 
 def createTravelPackage():
     """
-    Creates an dictionary with the following keys: "start_date" = None, "end_date" = None, "destination" = "", "price" = 0
+    Creates a travel package
     :params: None
-    :returns: a dictionary
+    :returns: a list
     :raises: 
     """
-    package = {
-        "start_date": None,
-        "end_date": None,
-        "destination": "",
-        "price": 0
-    }
+    package = [None, None, "", 0]
     return package
-
-def getTravelPackagesList(travel_packages):
-    """
-    Function that returns the list of travel packages 
-    :params: a dictionary
-    :returns: a list
-    """
-    return travel_packages["list"]
 
 def getStartDate(travel_package):
     """
@@ -41,7 +28,7 @@ def getStartDate(travel_package):
     :returns: the value of start_date
     :raises:
     """
-    return travel_package["start_date"]
+    return travel_package[0]
 
 def getEndDate(travel_package):
     """
@@ -50,7 +37,7 @@ def getEndDate(travel_package):
     :returns: the value of end_date
     :raises:
     """
-    return travel_package["end_date"]
+    return travel_package[1]
 
 def getPrice(travel_package):
     """
@@ -59,7 +46,7 @@ def getPrice(travel_package):
     :returns: a float representing the price
     :raises:
     """
-    return travel_package["price"]
+    return travel_package[3]
 
 def getDestination(travel_package):
     """
@@ -68,7 +55,7 @@ def getDestination(travel_package):
         :returns: a string representing the destination
         :raises:
     """
-    return travel_package["destination"]
+    return travel_package[2]
 
 def modifyStartDate(travel_package, new_start_date:dict):
     """
@@ -77,7 +64,7 @@ def modifyStartDate(travel_package, new_start_date:dict):
     :returns: 
     :raises:
     """
-    travel_package["start_date"] = new_start_date
+    travel_package[0] = new_start_date
 
 def modifyEndDate(travel_package, new_end_date:dict):
     """
@@ -86,7 +73,7 @@ def modifyEndDate(travel_package, new_end_date:dict):
     :returns: 
     :raises:
     """
-    travel_package["end_date"] = new_end_date
+    travel_package[1] = new_end_date
 
 def modifyDestination(travel_package, new_dest:str):
     """
@@ -95,7 +82,7 @@ def modifyDestination(travel_package, new_dest:str):
     :returns:
     :raises:
     """
-    travel_package["destination"] = new_dest
+    travel_package[2] = new_dest
 
 def modifyPrice(travel_package, new_price:float):
     """
@@ -104,14 +91,6 @@ def modifyPrice(travel_package, new_price:float):
     :returns:
     :raises:
     """
-    travel_package["price"] = new_price
+    travel_package[3] = new_price
 
-def appendCurrentListToHist(travel_package_structure):
-    """
-    Function that appends current travel packages list to history
-    :params: a dictionary, corresponding to a travel_package_structure
-    :returns:
-    :raises:
-    """
-    travel_package_structure["hist"].append(travel_package_structure["list"].copy())
 

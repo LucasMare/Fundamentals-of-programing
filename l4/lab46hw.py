@@ -1,5 +1,5 @@
-from domain import createTravelPackage, createTravelPackagesDataStructure, appendCurrentListToHist, getTravelPackagesList, modifyStartDate, modifyEndDate, modifyDestination, modifyPrice
-from service import addPackageToList, filterByPrice, filterByDestination, intersection, parseDate, parsePrice
+from domain import createTravelPackage, modifyStartDate, modifyEndDate, modifyDestination, modifyPrice
+from service import addPackageToList, filterByPrice, filterByDestination, intersection, parseDate, parsePrice, filterByMonth, createTravelPackagesDataStructure, undo, appendCurrentListToHist, getTravelPackagesList
 from tests import testFunction
 
 
@@ -31,7 +31,7 @@ This app supports:
     
 First iteration:
 
-    - adding support for storing, adding, modifying travel packages list
+    - adding support for storing and adding travel packages list
         - function for creating new travel packages list
         - function for adding packages to the list
         - function for modifying packages in the list
@@ -39,6 +39,8 @@ First iteration:
     - adding support for undoing previous operations
         - figuring out a way of storing history of operations
         - implementing an undo function
+    - adding support for certain filters
+        - elimination of travel packages more expensive than a given price and a different destination from the inputed one
 
 Second iteration:
     - refactoring error handling when inputing invalid data for the price and dates of a travel package
@@ -49,7 +51,12 @@ Second iteration:
     - implementing further filter options
     - implementing search features 
     - rewriting some flawed tests
-    
+    - add support for all other filters
+
+Third iteration: 
+    - moving the travel packages structure logic to service module
+    - moving parsePrice to ui module
+
     
 """
 
@@ -74,7 +81,7 @@ def outputTextForMenu ():
             - printing all travel packages available within a certain time frame in ascending price order
             - printing average price price for a given destination
         5. Filtration 
-            - Elimination of travel packages more expensive than a given price and a different destination from the inputted one
+            - Elimination of travel packages more expensive than a given price and a different destination from the inputed one
             - Elimination of travel packages that include certain days of a month (a number from 1 to 12)
         6. Undo 
             - Undoing the last action (the travel package list goes back to the last version.)
@@ -90,8 +97,8 @@ def inputDate():
     :returns: a dictionary
     :raises: 
     """
-    date = True
-    while date:
+    date = False
+    while date == False:
         try:
             date = parseDate(input())
         except Exception as error:
@@ -105,8 +112,8 @@ def inputPrice():
     :returns: a float with two decimals
     :raises:
     """
-    price = True
-    while price:
+    price = False
+    while price == False:
         try:
             price = parsePrice(input())
         except Exception as error:
@@ -150,7 +157,7 @@ def endProgram():
 def menu():
     """
     Function that deals with the main menu of the app
-    """
+    """ 
     travel_packages_structure = createTravelPackagesDataStructure()
     while True:
         outputTextForMenu()
@@ -158,6 +165,12 @@ def menu():
         match choice:
             case "1": addMenu(travel_packages_structure)
             case "5": filtrationMenu(travel_packages_structure)
+            case "6": 
+                try: 
+                    undo(travel_packages_structure)
+                    print("Undo successful!")
+                except Exception as error:
+                    print (error)
             case "0": endProgram()
             case _: print ("Invalid command!")
 
@@ -180,8 +193,8 @@ def addMenu(travel_packages_structure):
             case "0": return None
             case "1": 
                 new_package = inputTravelPackage()
-                addPackageToList(getTravelPackagesList(travel_packages_structure), new_package)
                 appendCurrentListToHist(travel_packages_structure)
+                addPackageToList(getTravelPackagesList(travel_packages_structure), new_package)
                 print (f"Current list of travel packages is:\n {getTravelPackagesList(travel_packages_structure)}")
             case _: print ("Invalid command!")
 
@@ -195,6 +208,7 @@ def filtrationMenu(travel_packages_structure):
         """)
         choice = input ("Input a command: ")
         match choice:
+            case "0": return None
             case "1": 
                 print ("Enter a price: ")
                 price = inputPrice()
@@ -204,6 +218,10 @@ def filtrationMenu(travel_packages_structure):
                 filtered_by_destination = filterByDestination(getTravelPackagesList(travel_packages_structure),destination,False)
                 filtered_list = intersection(filtered_by_price, filtered_by_destination)
                 print(f"Here is the filtered list:\n {filtered_list}")
+            case "2":
+                print("Enter a valid month number (1-12): ")
+                month = int(input())
+                print (f"This is the filtered list: {filterByMonth(getTravelPackagesList(travel_packages_structure), month)}")
             
 
 if __name__ == '__main__':
