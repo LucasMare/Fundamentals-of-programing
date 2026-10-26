@@ -49,9 +49,8 @@ Second iteration:
     - making all methods adhere to the single responsability rule
     - implementing the abilty to modify a travel package
     - implementing further filter options
-    - implementing search features 
+    - implementing search features
     - rewriting some flawed tests
-    - add support for all other filters
 
 Third iteration: 
     - moving the travel packages structure logic to service module
@@ -60,7 +59,7 @@ Third iteration:
     
 """
 
-def outputTextForMenu ():
+def outputTextForMainMenu ():
     print ("""
     An app that helps clients of tourism agency manage tourism packages
     A tourism package consists of start date and end date, destination and price
@@ -86,6 +85,22 @@ def outputTextForMenu ():
         6. Undo 
             - Undoing the last action (the travel package list goes back to the last version.)
         0. Exit Program
+    """)
+
+def outputTextForAddMenu():
+    print ("""
+    Add menu:
+        1. Add a travel package to the list
+        2. Modify a travel package from the list 
+        0. Go back
+    """)
+
+def outputTextForFilterMenu():
+    print ("""
+    Filter menu:
+        1. Show all entries with a higher price and a different destination from the ones inputed by the user
+        2. Show all entries not whithin a month entered by the user
+        0. Go back
     """)
 
 
@@ -160,7 +175,7 @@ def menu():
     """ 
     travel_packages_structure = createTravelPackagesDataStructure()
     while True:
-        outputTextForMenu()
+        outputTextForMainMenu()
         choice = input ("Input a command: ")
         match choice:
             case "1": addMenu(travel_packages_structure)
@@ -181,13 +196,8 @@ def addMenu(travel_packages_structure):
     :returns:
     :raises:
     """
+    outputTextForAddMenu()
     while True:    
-        print ("""
-        Add menu:
-            1. Add a travel package to the list
-            2. Modify a travel package from the list 
-            0. Go back
-        """)
         choice = input ("Input a command: ")
         match choice:
             case "0": return None
@@ -199,13 +209,8 @@ def addMenu(travel_packages_structure):
             case _: print ("Invalid command!")
 
 def filtrationMenu(travel_packages_structure):
+    outputTextForFilterMenu()
     while True:
-        print ("""
-        Filter menu:
-            1. Show all entries with a higher price and a different destination from the ones inputed by the user
-            2. Show all entries not whithin a month entered by the user
-            0. Go back
-        """)
         choice = input ("Input a command: ")
         match choice:
             case "0": return None
