@@ -1,16 +1,3 @@
-def createTravelPackagesDataStructure():
-    """
-    Function that creates a dictionary with two keys: "list", with the value an empty list, and "hist", also an empty list
-    :params: None
-    :returns:
-    :raises:
-    """
-    travel_packages = {
-        "list": [],
-        "hist": [] 
-    }
-    return travel_packages
-
 def createTravelPackage():
     """
     Creates a travel package

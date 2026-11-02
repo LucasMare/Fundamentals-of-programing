@@ -1,5 +1,6 @@
-from service import intersection, isLeapYear, isValidDate, parseDate, addPackageToList, filterByDestination, filterByPrice, destinationComparator, parsePrice, isWithinMonth, filterByMonth, createTravelPackagesDataStructure, getTravelPackagesList, appendCurrentListToHist, getTravelPackagesHist, modifyPackagesList, undo
+from service import intersection, isLeapYear, isValidDate, parseDate, addPackageToList, filterByDestination, filterByPrice, destinationComparator, parsePrice, isWithinMonth, filterByMonth, createTravelPackagesDataStructure, getTravelPackagesList, appendCurrentListToHist, getTravelPackagesHist, modifyPackagesList, undo, modifyPackageFromList, getPackageFromList, dateComparator, filterByDate, averagePrice, deleteByCriteria
 from domain import createTravelPackage, getDestination, getPrice, getStartDate, getEndDate, modifyStartDate, modifyEndDate, modifyDestination, modifyPrice
+from validation import isValidCommand
 
 def testIntersection():
     assert intersection([1,2,3],["a",2,{}]) == [2]
@@ -95,6 +96,7 @@ def testDestinationComparator():
     assert destinationComparator("paris", "Paris") == True
     assert destinationComparator("paris", "Pari") == False
     assert destinationComparator("paris", "1") == False
+    assert destinationComparator("Paris", "paRis") == True
 
 def testFilterByDestination():
     structure = createTravelPackagesDataStructure()
@@ -173,6 +175,72 @@ def testFilterByMonth():
     assert filterByMonth(getTravelPackagesList(structure), 11) == []
     assert filterByMonth(getTravelPackagesList(structure), 5) == [package]
 
+def testGetPackageFromList():
+    structure = createTravelPackagesDataStructure()
+    package = createTravelPackage()
+    addPackageToList(getTravelPackagesList(structure), package)
+    assert getPackageFromList(getTravelPackagesList(structure), 0) == package
+
+def testModifyPackageFromList():
+    structure = createTravelPackagesDataStructure()
+    package = createTravelPackage()
+    addPackageToList(getTravelPackagesList(structure),package)
+    newPackage = createTravelPackage()
+    modifyDestination(newPackage, "frappula")
+    try: 
+        modifyPackageFromList(getTravelPackagesList(structure), newPackage, 1)
+        assert False
+    except:
+        assert True
+    modifyPackageFromList(getTravelPackagesList(structure), newPackage, 0)
+    assert getPackageFromList(getTravelPackagesList(structure),0) == newPackage
+
+def testDateComparator():
+    assert dateComparator(parseDate("10/9/2007"), parseDate("10/9/2007")) == True
+    assert dateComparator(parseDate("1/1/2007"), parseDate("31/12/2006")) == False
+    assert dateComparator(parseDate("11/9/2007"), parseDate("1/9/2007")) == False
+    assert dateComparator(parseDate("10/8/2026"), parseDate("11/9/2026")) == True
+
+def testFilterByDate():
+    structure = createTravelPackagesDataStructure()
+    package1 = createTravelPackage()  
+    package2 = createTravelPackage()
+    modifyStartDate(package1, parseDate("10/11/2025"))  
+    modifyEndDate(package1, parseDate("11/12/2025"))  
+    modifyStartDate(package2, parseDate("15/8/2013"))  
+    modifyEndDate(package2, parseDate("15/9/2013"))
+    addPackageToList(getTravelPackagesList(structure), package1)  
+    addPackageToList(getTravelPackagesList(structure), package2)
+    assert filterByDate(getTravelPackagesList(structure), parseDate("1/6/2025"), parseDate("31/12/2025"), True) == [package1]
+    assert filterByDate(getTravelPackagesList(structure), parseDate("11/11/2010"), parseDate("5/12/2025"), True) == [package2]
+    assert filterByDate(getTravelPackagesList(structure), parseDate("11/11/2025"), parseDate("31/12/2025"), True) == []
+    assert filterByDate(getTravelPackagesList(structure), parseDate("1/6/2016"), parseDate("31/12/2016"), False) == [package1, package2]
+
+def testIsValidCommand():
+    try: 
+        isValidCommand("klsf")
+        assert False
+    except: assert True
+    isValidCommand("add")
+
+def testAveragePrice():
+    structure = createTravelPackagesDataStructure()
+    package = createTravelPackage()
+    package1 = createTravelPackage()
+    modifyPrice(package,1000.50)
+    modifyPrice(package1,1500)
+    addPackageToList(getTravelPackagesList(structure),package)
+    addPackageToList(getTravelPackagesList(structure),package1)
+    assert averagePrice(getTravelPackagesList(structure)) == 1250.25
+
+def testDeleteByCriteria():
+    structure = createTravelPackagesDataStructure()
+    package = createTravelPackage()
+    package1 = createTravelPackage()
+    package2 = createTravelPackage()
+    package3 = createTravelPackage()
+    package4 = createTravelPackage()
+    modifyPrice (package, 1800)
 
 def testFunction():
     testIntersection()
@@ -200,3 +268,9 @@ def testFunction():
     testUndo()
     testIsWithinMonth()
     testFilterByMonth()
+    testGetPackageFromList()
+    testModifyPackageFromList()
+    testDateComparator()
+    testFilterByDate()
+    testIsValidCommand()
+    testAveragePrice()

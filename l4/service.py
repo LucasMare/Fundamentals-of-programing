@@ -13,7 +13,6 @@ def createTravelPackagesDataStructure():
     }
     return travel_packages
 
-
 def getTravelPackagesList(travel_package_structure):
     """
     Function that returns the list of travel packages 
@@ -52,6 +51,23 @@ def modifyPackagesList(travel_package_structure, new_list:list):
         new_list_copy.append(new_package)
     travel_package_structure["list"] = new_list_copy
 
+def getPackageFromList(travel_package_list, index):
+    """
+    Function that returns the element with a certain index from a travel package list
+    :params: a travel packages list, an index
+    :returns: a travel package
+    :raises:
+    """
+    return travel_package_list[index]
+
+def modifyPackageFromList(travel_package_list, new_travel_package, index_to_modify):
+    """
+    Function that modifies a package with a given index from a given travel package list
+    :params: travel package list, travel_package, index to be modified
+    :returns:
+    :raises:
+    """
+    travel_package_list[index_to_modify] = new_travel_package
 
 def appendCurrentListToHist(travel_package_structure):
     """
@@ -95,7 +111,7 @@ def intersection(l1,l2):
     """
     intersec = []
     for el in l1:
-        if el in l2: intersec.append(el)
+        if (el in l2) and (el not in intersec): intersec.append(el)
     return intersec
 
 def isLeapYear(x):
@@ -176,8 +192,8 @@ def parsePrice (num_string:str):
 
 def addPackageToList(travel_package_list, travel_package):
     """
-    Function that appends a travel package to a list
-    :params: a dictionary corresponding to a travel_package_structure, a dictionary corresponding to a travel package
+    Function that appends a travel package to a travel packages list
+    :params: a travel package list, a travel package
     :returns: 
     :raises:
     """
@@ -204,7 +220,7 @@ def destinationComparator(d1, d2):
     :raises:
     """
     return d1.lower() == d2.lower()
-
+    
 def filterByDestination(travel_packages_list, destination, sameOrDifferent):
     """
     Function that gets a list of travel packages, a string that represents a destination and a boolean value, than returns a list of all packages that have the same destination as the one given, if the boolean is true, or a list of all packages with a different destination to the one given, if the boolean value is false
@@ -217,6 +233,37 @@ def filterByDestination(travel_packages_list, destination, sameOrDifferent):
         package_destination = getDestination(package)
         if (destinationComparator(package_destination,destination)) == sameOrDifferent: addPackageToList(updated_list, package)
     return updated_list
+
+def dateComparator(d1, d2):
+    """
+    Function that compare two dates
+    :params: two dictionaries representing dates
+    :returns: 1, if the first is earlier than the second, 2, if they are equal, and 3 otherwise
+    :raises:
+    """
+    if d1["year"] < d2["year"]: return True
+    if d1["year"] == d2["year"]:
+        if d1["month"] < d2["month"]: return True
+        if d1["month"] == d2["month"]:
+            if d1["day"] <= d2["day"]: return True
+    return False
+
+def filterByDate(travel_packages_list, l_date, r_date, isWithin:bool):
+    """
+    Function that returns a list of all packages that are within a given time frame, if the bool is true, and a list of all pacakges that aren't within the given time frame, if false
+    :params: a travel package list, a date interval, a bool
+    :returns: a list
+    :raises:
+    """
+    filteredList = []
+    otherFilter = []
+    for package in travel_packages_list:
+        if (dateComparator(l_date, getStartDate(package)) and dateComparator(getEndDate(package), r_date)):
+               filteredList.append(package)
+        else: otherFilter.append(package)
+
+    if isWithin: return filteredList
+    return otherFilter
 
 def isWithinMonth(start_date:dict, end_date:dict, month):
     """
@@ -241,3 +288,33 @@ def filterByMonth(travel_packages_list, month:int):
     for package in travel_packages_list:
         if (isWithinMonth(getStartDate(package), getEndDate(package), month)) == False: addPackageToList(updated_list, package)
     return updated_list
+
+def sortByKey(travel_package_list, criteria, ascending:bool = True):
+    """
+    Function that deals with sorting a travel packages list by the given key
+    :params: a travel packages list, a criteria function and a bool
+    :returns: a list
+    :raises:
+    """
+    return sorted(travel_package_list, key = lambda package: criteria(package), reverse = not ascending)
+
+def averagePrice(travel_package_list):
+    """
+    Function that returns the average price of the travel packages
+    """
+    sum = 0
+    for package in travel_package_list:
+        sum += getPrice(package)
+    return round(float(sum/len(travel_package_list)),2)
+
+def deleteByCriteria(travel_packages_list, criteria):
+    """
+    Function that deletes all packages from the list with the given criteria
+    :params: a travel pacakges list, a function representing a criteria
+    :returns:
+    :raises:
+    """
+    for package in travel_packages_list:
+        if criteria(package):
+            travel_packages_list.remove(package)
+

@@ -1,5 +1,5 @@
 from domain import createTravelPackage, modifyStartDate, modifyEndDate, modifyDestination, modifyPrice
-from service import addPackageToList, filterByPrice, filterByDestination, intersection, parseDate, parsePrice, filterByMonth, createTravelPackagesDataStructure, undo, appendCurrentListToHist, getTravelPackagesList
+from service import addPackageToList, filterByPrice, filterByDestination, intersection, parseDate, parsePrice, filterByMonth, createTravelPackagesDataStructure, undo, appendCurrentListToHist, getTravelPackagesList, getStartDate, getEndDate, getDestination, getPrice, modifyPackageFromList, sortByKey, filterByDate, averagePrice
 from tests import testFunction
 
 
@@ -95,6 +95,14 @@ def outputTextForAddMenu():
         0. Go back
     """)
 
+def outputTextForReportMenu():
+    print("""
+    Report menu:
+        1. Give number of travel packages for a given destination
+        2. Give all packages available within a certain time period in ascending price order
+        3. Give the average price for a given destination
+    """)
+
 def outputTextForFilterMenu():
     print ("""
     Filter menu:
@@ -102,8 +110,6 @@ def outputTextForFilterMenu():
         2. Show all entries not whithin a month entered by the user
         0. Go back
     """)
-
-
 
 def inputDate():
     """
@@ -135,6 +141,24 @@ def inputPrice():
             print (error)
     return price
 
+def inputNum(range_low, range_high):
+    """
+    Function that deals with inputing a number within a certain range.
+    :params: None
+    :returns: an int
+    :raises:
+    """
+    num = input()
+    try:
+        num = int(num)
+    except:
+        raise ValueError("Please enter a number!")
+    try:
+        assert range_low<=num and num<=range_high
+    except:
+        raise ValueError("Inavlid number!")
+    return num
+
 def inputDestination():
     """
     Function that inputs a string representing a destination and returns it
@@ -164,7 +188,23 @@ def inputTravelPackage():
     
     return package
 
-    
+def printPackage(travel_package):
+    """
+    Function that deals with printing a travel package
+    """
+    print (f"Period: {getStartDate(travel_package)["day"]}/{getStartDate(travel_package)["month"]}/{getStartDate(travel_package)["year"]} - {getEndDate(travel_package)["day"]}/{getEndDate(travel_package)["month"]}/{getEndDate(travel_package)["year"]}")
+    print (f"Destination: {getDestination(travel_package)}")
+    print (f"Price: {getPrice(travel_package)}")
+
+def printPackageList(travel_package_list):
+    """
+    Function that deals with printing a travel package list
+    """
+    for i in range(0,len(travel_package_list)):
+        print(f"{i+1}.")
+        printPackage(travel_package_list[i])
+        print('\n')
+
 def endProgram():
     print ("See you later aligator!")
     exit()
@@ -179,6 +219,7 @@ def menu():
         choice = input ("Input a command: ")
         match choice:
             case "1": addMenu(travel_packages_structure)
+            case "4": reportMenu(travel_packages_structure)
             case "5": filtrationMenu(travel_packages_structure)
             case "6": 
                 try: 
@@ -186,6 +227,9 @@ def menu():
                     print("Undo successful!")
                 except Exception as error:
                     print (error)
+            case "7": 
+                print("Current list is: \n")
+                printPackageList(getTravelPackagesList(travel_packages_structure))
             case "0": endProgram()
             case _: print ("Invalid command!")
 
@@ -205,8 +249,50 @@ def addMenu(travel_packages_structure):
                 new_package = inputTravelPackage()
                 appendCurrentListToHist(travel_packages_structure)
                 addPackageToList(getTravelPackagesList(travel_packages_structure), new_package)
-                print (f"Current list of travel packages is:\n {getTravelPackagesList(travel_packages_structure)}")
+                print("Current list of travel packages is: \n")
+                printPackageList(getTravelPackagesList(travel_packages_structure))
+            case "2":
+                appendCurrentListToHist(travel_packages_structure)
+                printPackageList(getTravelPackagesList(travel_packages_structure))
+                print("Enter which package you want to modify: ")
+                package_choice = False
+                while package_choice == False:
+                    try: 
+                        package_choice = inputNum(1,len(getTravelPackagesList(travel_packages_structure)))
+                        package_choice = package_choice - 1
+                    except Exception as error:
+                        print(error)
+                print("Enter a new package to modify the old one: ") 
+                modifyPackageFromList(getTravelPackagesList(travel_packages_structure), inputTravelPackage(), package_choice)
+                print("Sucessfully modified travel package")
             case _: print ("Invalid command!")
+
+def deleteMenu():
+    while True:
+        choice = input ("Input a command: ")
+        
+
+def reportMenu(travel_packages_structure):
+    outputTextForReportMenu()
+    while True: 
+        choice = input("Input a command: ")
+        match choice:
+            case "0": return None
+            case "1": 
+                print("Input a destination: ") 
+                destination = inputDestination()
+                print(f"Number of travel packages with the given destination is: {len(filterByDestination(getTravelPackagesList(travel_packages_structure), destination, True))}")
+            case "2":
+                print ("Please input the start date of the interval: ")
+                start_date = inputDate()
+                print ("Please input the end date of the interval: ")
+                end_date = inputDate()
+                print("The list of all packages in this time frame in ascending price order is: \n")
+                printPackageList(sortByKey(filterByDate(getTravelPackagesList(travel_packages_structure), start_date, end_date, True), getPrice))
+            case "3":
+                print ("Enter a destination: ")
+                destination = inputDestination()
+                print(f"The average price for {destination} is {averagePrice(filterByDestination(getTravelPackagesList(travel_packages_structure), destination, True))}")
 
 def filtrationMenu(travel_packages_structure):
     outputTextForFilterMenu()
@@ -225,8 +311,14 @@ def filtrationMenu(travel_packages_structure):
                 print(f"Here is the filtered list:\n {filtered_list}")
             case "2":
                 print("Enter a valid month number (1-12): ")
-                month = int(input())
-                print (f"This is the filtered list: {filterByMonth(getTravelPackagesList(travel_packages_structure), month)}")
+                month = False
+                while month == False:
+                    try:
+                        month = inputNum(1,12)
+                    except Exception as error:
+                        print(error)
+                print ("This is the filtered list:\n")
+                printPackageList(filterByMonth(getTravelPackagesList(travel_packages_structure), month))
             
 
 if __name__ == '__main__':
