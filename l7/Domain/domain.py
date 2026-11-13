@@ -68,9 +68,15 @@ class Person:
         :param event:
         :return:
         """
-        attendance = Attendance(person=self, event=event)
+        attendance = Attendance(self, event)
         self.add_attendance(attendance)
         event.add_attendance(attendance)
+
+    def __str__(self):
+        return f"ID: {self.id()}, name: {self.name()}, address: {self.address()}"
+
+    def __repr__(self):
+        return str(self)
 
 
 class Event:
@@ -151,13 +157,19 @@ class Event:
         """
         self.attendances.append(attendance)
 
+    def __str__(self):
+        return f"ID: {self.id()}, date: {self.date()}, time: {self.time()}, description: {self.description()}"
+
+    def __repr__(self):
+        return str(self)
+
 class Attendance:
     def __init__(self, person:Person, event:Event):
         self.person = person
         self.event = event
 
     def __repr__(self):
-        return f"{self.person.id()} attends the event with id {self.event.id()}"
+        return f"Person with ID:{self.person.id()} attends the event with ID:{self.event.id()}"
 
 
 
