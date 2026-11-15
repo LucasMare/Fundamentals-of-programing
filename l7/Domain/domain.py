@@ -78,6 +78,8 @@ class Person:
     def __repr__(self):
         return str(self)
 
+    def __eq__(self, other:object, /) -> bool:
+        return self.name() == other.name() and self.address() == other.address()
 
 class Event:
     def __init__(self, eventID, event_date:date, event_time:time, description):
@@ -133,7 +135,7 @@ class Event:
         """
         self.attributes["date"] = event_date
 
-    def set_address(self, event_time:time):
+    def set_time(self, event_time:time):
         """
         Sets the event time
         :param event_time:
@@ -162,6 +164,9 @@ class Event:
 
     def __repr__(self):
         return str(self)
+
+    def __eq__(self, other:object, /) -> bool:
+        return self.time() == other.time() and self.date() == other.date() and self.description() == other.description()
 
 class Attendance:
     def __init__(self, person:Person, event:Event):

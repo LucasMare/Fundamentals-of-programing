@@ -1,6 +1,6 @@
 from UI.ui import UI
 from Repository.repository import Repository
-from Service.service import Service
+from Service.service import PeopleService, EventService
 from Domain.domain import Person, Event
 from tests import Tests
 
@@ -12,10 +12,10 @@ if __name__ == "__main__":
     person_repo = Repository()
     event_repo = Repository()
 
-    person_service = Service(person_repo)
-    event_service = Service(event_repo)
+    person_service = PeopleService(person_repo)
+    event_service = EventService(event_repo)
 
-    person_service.add(Person("24kkl4l", "Lucas", "unnamed road, 38"))
+    person_service.add(Person("1", "Lucas", "unnamed road, 38"))
     person_service.add(Person("24kkl4m", "Lucas", "unnamed road, 38"))
     person_service.add(Person("24kkl4n", "Lucas", "unnamed road, 38"))
     person_service.add(Person("24kkl4o", "Lucas", "unnamed road, 38"))

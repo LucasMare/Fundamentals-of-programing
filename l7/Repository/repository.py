@@ -26,6 +26,14 @@ class Repository:
         """
         return list(self.__list.keys())
 
+    def item_by_id(self, search_id):
+        """
+        Method for returning an item given its id
+        :param search_id:
+        :return:
+        """
+        return self.items_by_id()[search_id]
+
     def add(self, element):
         """
         Method that adds an instance to the list
@@ -33,3 +41,11 @@ class Repository:
         :return:
         """
         self.items_by_id()[element.id()] = element
+
+    def delete(self, object_id:str):
+        """
+        Method that deletes the object with a given id
+        :param object_id:
+        :return:
+        """
+        del self.items_by_id()[object_id]

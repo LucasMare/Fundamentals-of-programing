@@ -1,3 +1,6 @@
+from Domain.domain import Person, Event
+from datetime import date, time
+
 class Service:
     """
     Class for the service of the person and event lists
@@ -19,5 +22,51 @@ class Service:
         :return:
         """
         self.get_repo().add(person_or_event)
+
+    def delete(self, object_id:str):
+        """
+        Method for deleting an object with the given id
+        :param object_id:
+        :return:
+        """
+        self.get_repo().delete(object_id)
+
+    def item_by_id(self, search_id):
+        """
+        Method for returning an item given its id
+        :param search_id:
+        :return:
+        """
+        return self.get_repo().item_by_id(search_id)
+
+class PeopleService(Service):
+    """
+    Class with methods specific to the person list
+    """
+    @staticmethod
+    def modify_person(modified_person:Person, new_name = None, new_address = None):
+        """
+        Method for modifying a given person
+        """
+        if new_name is not None:
+            modified_person.set_name(new_name)
+        if new_address is not None:
+            modified_person.set_address(new_address)
+
+class EventService(Service):
+    """
+    Class with methods specific for the event list
+    """
+    @staticmethod
+    def modify_event(modified_event: Event, new_date:date | None = None, new_time:time | None = None, new_description = None):
+        """
+        Method for modifying a given person
+        """
+        if new_date is not None:
+            modified_event.set_date(new_date)
+        if new_time is not None:
+            modified_event.set_time(new_time)
+        if new_description is not None:
+            modified_event.set_description(new_description)
 
 
