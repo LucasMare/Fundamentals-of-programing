@@ -1,5 +1,6 @@
 from Domain.domain import Person, Event
-from datetime import date, time
+from datetime import date, time, datetime
+import random
 
 class Service:
     """
@@ -37,7 +38,38 @@ class Service:
         :param search_id:
         :return:
         """
-        return self.get_repo().item_by_id(search_id)
+        return self.get_repo().items_by_id()[search_id]
+
+    @staticmethod
+    def generate_rand_string(use_special_characters_and_digits = False, length = 8):
+        """
+        Function for generating a random string of characters
+        :param length:
+        :param use_special_characters_and_digits:
+        :return:
+        """
+        characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+        if use_special_characters_and_digits:
+            characters += '0123456789!@#$%^&*()'
+        rand_id = ""
+        for i in range(length):
+            rand_id += random.choice(characters)
+        return rand_id
+
+    def generate_random_id(self):
+        """
+        Method for generating a unique id
+        :return:
+        """
+        ids = self.get_repo().ids()
+        rand_id = self.generate_rand_string(True)
+
+        while rand_id in ids:
+            rand_id = self.generate_rand_string(True)
+
+        return rand_id
+
+
 
 class PeopleService(Service):
     """
@@ -52,6 +84,13 @@ class PeopleService(Service):
             modified_person.set_name(new_name)
         if new_address is not None:
             modified_person.set_address(new_address)
+
+    def generate_rand_person(self):
+        """
+        Method for generating a random person
+        :return:
+        """
+        return Person(self.generate_random_id(), self.generate_rand_string(length=random.randrange(3,30)), self.generate_rand_string(True, random.randrange(1,30)))
 
 class EventService(Service):
     """
@@ -68,5 +107,39 @@ class EventService(Service):
             modified_event.set_time(new_time)
         if new_description is not None:
             modified_event.set_description(new_description)
+
+    @staticmethod
+    def generate_random_date(lower = 2000) -> date:
+        """
+        Method for generating a random
+        :param lower:
+        :return:
+        """
+        year = random.randrange(lower, datetime.now().year)
+        month = random.randrange(1, 12)
+        day = random.randrange(1,31)
+        while True:
+            try:
+                return date(year, month, day)
+            except ValueError:
+                day = random.randrange(1, 31)
+
+    @staticmethod
+    def generate_random_time():
+        """
+        Method for generating a random time
+        :return:
+        """
+        hour = random.randrange(0,23)
+        minute = random.randrange(0,59)
+        return time(hour, minute)
+
+    def generate_random_event(self):
+        """
+        Method for generating a random event
+        :return:
+        """
+        return Event(self.generate_random_id(), self.generate_random_date(), self.generate_random_time(), self.generate_rand_string(length=random.randrange(10, 50)))
+
 
 

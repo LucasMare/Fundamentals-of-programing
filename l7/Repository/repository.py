@@ -26,14 +26,6 @@ class Repository:
         """
         return list(self.__list.keys())
 
-    def item_by_id(self, search_id):
-        """
-        Method for returning an item given its id
-        :param search_id:
-        :return:
-        """
-        return self.items_by_id()[search_id]
-
     def add(self, element):
         """
         Method that adds an instance to the list

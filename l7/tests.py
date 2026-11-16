@@ -1,3 +1,4 @@
+import random
 from Domain.domain import Person, Event
 from datetime import date, time
 from Repository.repository import Repository
@@ -128,11 +129,12 @@ class Tests:
         assert repo.items_by_id() == {}
 
     @staticmethod
-    def test_repo_item_by_id():
+    def test_service_item_by_id():
         per = Person("lfkj3", "Lucas", "alkjf")
         repo = Repository()
-        repo.add(per)
-        assert repo.item_by_id("lfkj3") == per
+        service = PeopleService(repo)
+        service.add(per)
+        assert service.item_by_id("lfkj3") == per
 
     @staticmethod
     def test_modify_person():
@@ -145,6 +147,24 @@ class Tests:
         event = Event("yes", date(2026, 10, 10), time(10, 00), "yeah")
         EventService.modify_event(event, new_description="nah")
         assert event == Event("yes", date(2026, 10, 10), time(10, 00), "nah")
+
+    @staticmethod
+    def test_generate_random_string():
+        random.seed(123)
+        rand_id = PeopleService.generate_rand_string(True)
+        random.seed(123)
+        assert rand_id == PeopleService.generate_rand_string(True)
+
+    @staticmethod
+    def test_generate_random_person():
+        repo = Repository()
+        service = PeopleService(repo)
+        random.seed(123)
+        rand_person = service.generate_rand_person()
+        random.seed(123)
+        assert rand_person == service.generate_rand_person()
+
+
 
     @staticmethod
     def test_function():
@@ -164,6 +184,8 @@ class Tests:
         Tests.test_validate_id_uniqueness()
         Tests.test_validate_ids_presence()
         Tests.test_repo_delete()
-        Tests.test_repo_item_by_id()
+        Tests.test_service_item_by_id()
         Tests.test_modify_person()
         Tests.test_modify_event()
+        Tests.test_generate_random_string()
+        Tests.test_generate_random_person()
