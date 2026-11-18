@@ -1,6 +1,8 @@
-from Domain.domain import Person, Event
+from Domain.domain import Person, Event, Attendance
 from datetime import date, time, datetime
 import random
+from validate import Validation, ValidationError
+
 
 class Service:
     """
@@ -15,6 +17,27 @@ class Service:
         :return:
         """
         return self.__repo
+
+    def items_by_id(self) -> dict:
+        """
+        Method that returns a dictionary where the keys are the id's and the values are the objects
+        :return:
+        """
+        return self.get_repo().items_by_id()
+
+    def items(self) -> list:
+        """
+        Method that returns the list of objects from the services repo
+        :return:
+        """
+        return self.get_repo().items()
+
+    def ids(self) -> list:
+        """
+        Method that returns a list of all id's of the services repo
+        :return:
+        """
+        return self.get_repo().ids()
 
     def add(self, person_or_event):
         """
@@ -62,14 +85,12 @@ class Service:
         :return:
         """
         ids = self.get_repo().ids()
-        rand_id = self.generate_rand_string(True)
+        rand_id = self.generate_rand_string(True, 4)
 
         while rand_id in ids:
-            rand_id = self.generate_rand_string(True)
+            rand_id = self.generate_rand_string(True, 4)
 
         return rand_id
-
-
 
 class PeopleService(Service):
     """
@@ -140,6 +161,55 @@ class EventService(Service):
         :return:
         """
         return Event(self.generate_random_id(), self.generate_random_date(), self.generate_random_time(), self.generate_rand_string(length=random.randrange(10, 50)))
+
+
+class AttendanceService(Service):
+    """
+    Class for the attendance service
+    """
+
+    def attendances_by_param(self, search_id, criteria = "event"):
+        """
+        Method for getting all attendances by param
+        :param search_id:
+        :param criteria:
+        :return:
+        """
+        return self.get_repo().attendances_by_param(search_id, criteria)
+
+    def delete_all_attendances_by_param(self, delete_by_id, criteria = "person"):
+        """
+        Method for deleting all attendances for a person or event
+        :param delete_by_id:
+        :param criteria:
+        :return:
+        """
+        self.get_repo().delete_all_attendances_by_param(delete_by_id, criteria)
+
+    def generate_random_attendance(self, people_list, event_list):
+        """
+        Method for generating random attendance
+        :param people_list:
+        :param event_list:
+        :return:
+        """
+        all_tuples = []
+        for p in people_list:
+            for e in event_list:
+                all_tuples.append((p,e))
+
+        while True:
+            rand_tuple = random.choice(all_tuples)
+            attendance = Attendance(rand_tuple[0], rand_tuple[1])
+            try:
+                Validation.validate_id_uniqueness(attendance, self.get_repo())
+                return attendance
+            except ValidationError:
+                pass
+
+
+
+
 
 
 

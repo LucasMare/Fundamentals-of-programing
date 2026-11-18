@@ -1,12 +1,9 @@
-from Repository.repository import Repository
-
-
 class ValidationError(Exception):
     pass
 
 class Validation:
     @staticmethod
-    def validate_person_name(name):
+    def validate_person_name(name:str):
         errors = []
         if not name:
             errors.append("Name cannot be empty")
@@ -15,9 +12,9 @@ class Validation:
             raise ValidationError(f"{", ".join(errors)}!")
 
     @staticmethod
-    def validate_id_uniqueness(person_or_event, repository):
-        if person_or_event.id() in repository.ids():
-            raise ValidationError("ID already present!")
+    def validate_id_uniqueness(domain_object, repository, message = "ID already present!"):
+        if domain_object.id() in repository.ids():
+            raise ValidationError(message)
 
     @staticmethod
     def validate_ids_presence(object_id, repository):

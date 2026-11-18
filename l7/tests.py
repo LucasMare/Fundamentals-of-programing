@@ -1,9 +1,9 @@
 import random
-from Domain.domain import Person, Event
+from Domain.domain import Person, Event, Attendance
 from datetime import date, time
-from Repository.repository import Repository
+from Repository.repository import Repository, AttendanceRepository
 from validate import Validation
-from Service.service import PeopleService, EventService
+from Service.service import PeopleService, EventService, AttendanceService
 
 
 class Tests:
@@ -156,14 +156,45 @@ class Tests:
         assert rand_id == PeopleService.generate_rand_string(True)
 
     @staticmethod
-    def test_generate_random_person():
-        repo = Repository()
-        service = PeopleService(repo)
-        random.seed(123)
-        rand_person = service.generate_rand_person()
-        random.seed(123)
-        assert rand_person == service.generate_rand_person()
+    def test_attendances_by_param():
+        attendance_repo = AttendanceRepository()
+        person = Person("1", "Lucas", "Sasar")
+        person1 = Person("2", "Lucas", "Sasar")
+        event = Event("1", date(2000,3,3), time(11,0), "jskdfh")
+        event1 = Event("2", date(2000,3,3), time(11,0), "jskdfh")
+        event2 = Event("3", date(2000,3,3), time(11,0), "jskdfh")
+        attendance = Attendance(person, event)
+        attendance2 = Attendance(person, event2)
+        attendance3 = Attendance(person1, event)
+        attendance4 = Attendance(person1, event2)
+        attendance_repo.add(attendance)
+        attendance_repo.add(attendance2)
+        attendance_repo.add(attendance3)
+        attendance_repo.add(attendance4)
+        assert attendance_repo.attendances_by_param("2") == []
+        assert attendance_repo.attendances_by_param("1") == [attendance, attendance3]
+        assert attendance_repo.attendances_by_param("1", "person") == [attendance, attendance2]
 
+    @staticmethod
+    def test_delete_attendance_by_param():
+        attendance_repo = AttendanceRepository()
+        attendance_service = AttendanceService(attendance_repo)
+        person = Person("1", "Lucas", "Sasar")
+        person1 = Person("2", "Lucas", "Sasar")
+        event = Event("1", date(2000,3,3), time(11,0), "jskdfh")
+        event2 = Event("3", date(2000,3,3), time(11,0), "jskdfh")
+        attendance = Attendance(person, event)
+        attendance2 = Attendance(person, event2)
+        attendance3 = Attendance(person1, event)
+        attendance4 = Attendance(person1, event2)
+        attendance_service.add(attendance)
+        attendance_service.add(attendance2)
+        attendance_service.add(attendance3)
+        attendance_service.add(attendance4)
+        attendance_service.delete_all_attendances_by_param("1")
+        assert attendance_repo.items() == [attendance3, attendance4]
+        attendance_service.delete_all_attendances_by_param("1", "event")
+        assert attendance_repo.items() == [attendance4]
 
 
     @staticmethod
@@ -188,4 +219,5 @@ class Tests:
         Tests.test_modify_person()
         Tests.test_modify_event()
         Tests.test_generate_random_string()
-        Tests.test_generate_random_person()
+        Tests.test_attendances_by_param()
+        Tests.test_delete_attendance_by_param()
