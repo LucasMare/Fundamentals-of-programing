@@ -207,6 +207,50 @@ class AttendanceService(Service):
             except ValidationError:
                 pass
 
+    def report_all_events_for_person_by_description_date(self, person_id):
+        """
+        Return a sorted list of events for a person
+        :param person_id:
+        :return:
+        """
+        return [x.event() for x in sorted(self.attendances_by_param(person_id, "person"), key=lambda item:(item.event().description(), item.event().date()))]
+    
+    def people_with_most_attendances(self):
+        """
+        Return a tuple of a list of the people with the most events and the number of events they attended
+        :return:
+        """
+        def __find_person_by_id_in_list(pid, plist):
+            for i in plist:
+                if i.id() == pid: return i
+            return None
+
+        people_list = []
+        for elem in self.items():
+            people_list.append(elem.person())
+        attendances = {}
+        for person in people_list:
+            attendances[person.id()] = len(self.attendances_by_param(person.id(), "person"))
+        max_attendances = max(attendances.values())
+        people_most_events = []
+        for key in attendances.keys():
+            if attendances[key] == max_attendances: people_most_events.append(__find_person_by_id_in_list(key, people_list))
+        return people_most_events, max_attendances
+
+    def first_fifth_events_by_participants(self, event_service):
+        """
+        Get top 20% of events with most participants
+        :param event_service:
+        :return:
+        """
+        final_list = []
+        for el in event_service.items():
+            final_list.append((el,len(self.attendances_by_param(el.id()))))
+        p = len(event_service.items())/5+1
+        return sorted(final_list, key = lambda item: item[1], reverse=True)[:int(p)]
+
+
+
 
 
 

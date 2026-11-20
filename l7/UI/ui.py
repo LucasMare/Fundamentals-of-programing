@@ -5,7 +5,7 @@ from Repository.repository import Repository
 from validate import Validation, ValidationError
 from Service.service import Service
 
-class UI:
+class GeneralUI:
     def __init__ (self, person_service, event_service, attendance_service):
         self.__person_service = person_service
         self.__event_service = event_service
@@ -32,58 +32,19 @@ class UI:
         """
         return self.__attendance_service
 
+class UI(GeneralUI):
     @staticmethod
     def output_text():
         print("""
-        This is an app for managing a list of people and events. 
-            1. Add to the lists
-            2. Delete from the lists
-            3. Search items in the lists
-            4. Modify an item in the lists
-            5. Mark a person attending an event
-            0. Exit
-        """)
-
-    @staticmethod
-    def input_valid_id(cservice:Service, message = "Input an ID:"):
-        while True:
-            print(message)
-            gotten_id = input()
-            try:
-                Validation.validate_ids_presence(gotten_id, cservice.get_repo())
-                return gotten_id
-            except ValidationError:
-                message = "No entry with this id, try again:"
-
-    def print_people_list(self, message = "This is the list of all people:"):
-        """
-        Method for printing all people
-        :param message:
-        :return:
-        """
-        print(message)
-        for person in self.person_service().items():
-            print(person)
-
-    def print_events_list(self, message = "This is the list of stored events:"):
-        """
-        Method for printing all events
-        :param message:
-        :return:
-        """
-        print(message)
-        for event in self.event_service().items():
-            print(event)
-
-    def print_attendance_list(self, message = "This is the list of all attendances:"):
-        """
-        Method for printing all attendances
-        :param message:
-        :return:
-        """
-        print(message)
-        for attendance in self.attendance_service().items():
-            print(attendance)
+            This is an app for managing a list of people and events. 
+                1. Add to the lists
+                2. Delete from the lists
+                3. Search items in the lists
+                4. Modify an item in the lists
+                5. Mark a person attending an event
+                6. Reports
+                0. Exit
+            """)
 
     def run(self):
         """
@@ -109,6 +70,9 @@ class UI:
                 case "5":
                     attendance_ui = AttendingUI(self.person_service(), self.event_service(), self.attendance_service())
                     attendance_ui.run()
+                case "6":
+                    report_ui = ReportUI(self.person_service(), self.event_service(), self.attendance_service())
+                    report_ui.run()
                 case 'p':
                     self.print_people_list()
                 case 'e':
@@ -118,9 +82,51 @@ class UI:
                 case "0":
                     print("Bye beach!!!!")
                     exit()
-                case _: print("Invalid choice!")
+                case _:
+                    print("Invalid choice!")
 
-class AddUI(UI):
+    @staticmethod
+    def input_valid_id(cservice: Service, message="Input an ID:"):
+        while True:
+            print(message)
+            gotten_id = input()
+            try:
+                Validation.validate_ids_presence(gotten_id, cservice.get_repo())
+                return gotten_id
+            except ValidationError:
+                message = "No entry with this id, try again:"
+
+    def print_people_list(self, message="This is the list of all people:"):
+        """
+        Method for printing all people
+        :param message:
+        :return:
+        """
+        print(message)
+        for person in self.person_service().items():
+            print(person)
+
+    def print_events_list(self, message="This is the list of stored events:"):
+        """
+        Method for printing all events
+        :param message:
+        :return:
+        """
+        print(message)
+        for event in self.event_service().items():
+            print(event)
+
+    def print_attendance_list(self, message="This is the list of all attendances:"):
+        """
+        Method for printing all attendances
+        :param message:
+        :return:
+        """
+        print(message)
+        for attendance in self.attendance_service().items():
+            print(attendance)
+
+class AddUI(GeneralUI):
     @staticmethod
     def output_text():
         print("""
@@ -401,12 +407,11 @@ class AttendingUI(UI):
     @staticmethod
     def output_text():
         print("""
-        Attendance menu: 
-            1. Add an attendance
-            2. Delete an attendance
+        Attendances menu:
+            1. Add attendance
+            2. Delete Attendance
             0. Go back
         """)
-
     def run(self):
         """
         Method for the attendance menu
@@ -448,5 +453,53 @@ class AttendingUI(UI):
             except ValidationError as error:
                 print(error)
 
+class ReportUI(UI):
+    @staticmethod
+    def output_text():
+        print("""
+        Report menu: 
+            1. Get all events for a person sorted by description and date
+            2. Get people with the most events
+            3. Top 20% events by people attending
+            0. Go back
+        """)
 
+    def run(self):
+        """
+        Method for the attendance menu
+        :return:
+        """
+        while True:
+            self.output_text()
+            choice = input()
+            try:
+                match choice:
+                    case "1":
+                        self.print_people_list()
+                        person_id = self.input_valid_id(self.person_service())
+                        if not self.attendance_service().report_all_events_for_person_by_description_date(person_id):
+                            raise ValidationError("No events")
+                        print("Events for this person are:\n", self.attendance_service().report_all_events_for_person_by_description_date(person_id))
+                    case "2":
+                        max_events = self.attendance_service().people_with_most_attendances()
+                        if len(max_events[0]) == 1:
+                            print(f"The person with the most events is person with id:{max_events[0][0].id()} with {max_events[1]} events")
+                        else:
+                            print("People with the most events are:\n")
+                            for el in max_events[0]:
+                                print(el)
+                            print(f",each with {max_events[1]} events")
+                    case "3":
+                        most_popular_events = self.attendance_service().first_fifth_events_by_participants(self.event_service())
+                        print("Top 20% most popular events are: ")
+                        for el in most_popular_events:
+                            msg = "people"
+                            if el[1]<=1: msg = "person"
+                            print(f"Event with description {'"'}{el[0].description()}{'"'} with {el[1]} {msg}")
+                    case "0":
+                        return
+                    case _:
+                        print("Invalid choice!")
+            except ValidationError as error:
+                print(error)
 

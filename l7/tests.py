@@ -196,6 +196,48 @@ class Tests:
         attendance_service.delete_all_attendances_by_param("1", "event")
         assert attendance_repo.items() == [attendance4]
 
+    @staticmethod
+    def test_report_all_events_for_person_by_description_date():
+        attendance_repo = AttendanceRepository()
+        attendance_service = AttendanceService(attendance_repo)
+        person = Person("1", "Lucas", "Sasar")
+        person1 = Person("2", "Lucas", "Sasar")
+        event = Event("1", date(2000, 3, 3), time(11, 0), "plm")
+        event2 = Event("3", date(2000, 3, 3), time(11, 0), "pla")
+        attendance = Attendance(person, event)
+        attendance2 = Attendance(person, event2)
+        attendance3 = Attendance(person1, event)
+        attendance4 = Attendance(person1, event2)
+        attendance_service.add(attendance)
+        attendance_service.add(attendance2)
+        attendance_service.add(attendance3)
+        attendance_service.add(attendance4)
+        assert attendance_service.report_all_events_for_person_by_description_date("1") == [event2, event]
+
+    @staticmethod
+    def test_people_with_most_attendances():
+        attendance_repo = AttendanceRepository()
+        attendance_service = AttendanceService(attendance_repo)
+        person = Person("1", "Lucas", "Sasar")
+        person1 = Person("2", "Lucas", "Sasar")
+        event = Event("1", date(2000, 3, 3), time(11, 0), "plm")
+        event2 = Event("3", date(2000, 3, 3), time(11, 0), "pla")
+        attendance = Attendance(person, event)
+        attendance2 = Attendance(person, event2)
+        attendance3 = Attendance(person1, event)
+        attendance4 = Attendance(person1, event2)
+        attendance_service.add(attendance)
+        attendance_service.add(attendance2)
+        attendance_service.add(attendance3)
+        attendance_service.add(attendance4)
+        assert attendance_service.people_with_most_attendances()[0] == [person, person1]
+        assert attendance_service.people_with_most_attendances()[1] == 2
+        attendance_service.delete_all_attendances_by_param("1")
+        assert attendance_service.people_with_most_attendances()[0] == [person1]
+        assert attendance_service.people_with_most_attendances()[1] == 2
+
+
+
 
     @staticmethod
     def test_function():
@@ -221,3 +263,5 @@ class Tests:
         Tests.test_generate_random_string()
         Tests.test_attendances_by_param()
         Tests.test_delete_attendance_by_param()
+        Tests.test_report_all_events_for_person_by_description_date()
+        Tests.test_people_with_most_attendances()
