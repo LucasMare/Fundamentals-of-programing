@@ -12,6 +12,11 @@ class Validation:
             raise ValidationError(f"{", ".join(errors)}!")
 
     @staticmethod
+    def validate_id(id_to_validate:str):
+        if not id_to_validate:
+            raise ValidationError("ID cannot be empty!")
+
+    @staticmethod
     def validate_id_uniqueness(domain_object, repository, message = "ID already present!"):
         if domain_object.id() in repository.ids():
             raise ValidationError(message)

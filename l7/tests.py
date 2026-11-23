@@ -215,13 +215,23 @@ class Tests:
         assert attendance_service.report_all_events_for_person_by_description_date("1") == [event2, event]
 
     @staticmethod
-    def test_people_with_most_attendances():
+    def test_first_k_items_by_criteria():
         attendance_repo = AttendanceRepository()
         attendance_service = AttendanceService(attendance_repo)
+        person_repo = Repository()
+        event_repo = Repository()
+        person_service = PeopleService(person_repo)
+        event_service = EventService(event_repo)
         person = Person("1", "Lucas", "Sasar")
         person1 = Person("2", "Lucas", "Sasar")
+        person_service.add(person)
+        person_service.add(person1)
         event = Event("1", date(2000, 3, 3), time(11, 0), "plm")
+        event1 = Event("2", date(2000, 3, 3), time(11, 0), "plm")
         event2 = Event("3", date(2000, 3, 3), time(11, 0), "pla")
+        event_service.add(event)
+        event_service.add(event1)
+        event_service.add(event2)
         attendance = Attendance(person, event)
         attendance2 = Attendance(person, event2)
         attendance3 = Attendance(person1, event)
@@ -230,14 +240,11 @@ class Tests:
         attendance_service.add(attendance2)
         attendance_service.add(attendance3)
         attendance_service.add(attendance4)
-        assert attendance_service.people_with_most_attendances()[0] == [person, person1]
-        assert attendance_service.people_with_most_attendances()[1] == 2
-        attendance_service.delete_all_attendances_by_param("1")
-        assert attendance_service.people_with_most_attendances()[0] == [person1]
-        assert attendance_service.people_with_most_attendances()[1] == 2
-
-
-
+        assert attendance_service.first_k_items_by_criteria(person_service, "person", 1) == [person]
+        assert attendance_service.first_k_items_by_criteria(person_service, "person", 2) == [person, person1]
+        assert attendance_service.first_k_items_by_criteria(event_service, "event", 1) == [event]
+        assert attendance_service.first_k_items_by_criteria(event_service, "event", 2) == [event, event2]
+        assert attendance_service.first_k_items_by_criteria(event_service, "event", 3) == [event, event2, event1]
 
     @staticmethod
     def test_function():
@@ -264,4 +271,4 @@ class Tests:
         Tests.test_attendances_by_param()
         Tests.test_delete_attendance_by_param()
         Tests.test_report_all_events_for_person_by_description_date()
-        Tests.test_people_with_most_attendances()
+        Tests.test_first_k_items_by_criteria()

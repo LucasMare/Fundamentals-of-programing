@@ -46,6 +46,13 @@ class Repository:
         Validation.validate_ids_presence(object_id, self)
         del self.items_by_id()[object_id]
 
+    def number_of_items(self):
+        """
+        Method that returns the number of items in the repository
+        :return:
+        """
+        return len(self.items())
+
 class AttendanceRepository(Repository):
     """
     Class for the attendances repositories
@@ -76,3 +83,12 @@ class AttendanceRepository(Repository):
         """
         for elem in self.attendances_by_param(delete_by_id, criteria):
             self.delete(elem.id())
+
+    def nr_attendances_by_param(self, search_id, criteria = "event"):
+        """
+        Method for returning the number of attendances for a person or event
+        :param search_id:
+        :param criteria:
+        :return:
+        """
+        return len(self.attendances_by_param(search_id, criteria))

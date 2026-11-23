@@ -3,8 +3,6 @@ from Repository.repository import Repository, AttendanceRepository
 from Service.service import PeopleService, EventService, AttendanceService
 from tests import Tests
 
-from datetime import date, time
-
 if __name__ == "__main__":
     Tests.test_function()
 
@@ -15,6 +13,7 @@ if __name__ == "__main__":
     person_service = PeopleService(person_repo)
     event_service = EventService(event_repo)
     attendance_service = AttendanceService(attendance_repo)
+
 
     for i in range(20):
         person_service.add(person_service.generate_rand_person())

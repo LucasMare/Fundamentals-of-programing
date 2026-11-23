@@ -11,7 +11,8 @@ class Service:
     def __init__ (self, repository):
         self.__repo = repository
 
-    def get_repo(self):
+    @property
+    def repo(self):
         """
         Method that returns the repository of the service object
         :return:
@@ -23,21 +24,21 @@ class Service:
         Method that returns a dictionary where the keys are the id's and the values are the objects
         :return:
         """
-        return self.get_repo().items_by_id()
+        return self.repo.items_by_id()
 
     def items(self) -> list:
         """
         Method that returns the list of objects from the services repo
         :return:
         """
-        return self.get_repo().items()
+        return self.repo.items()
 
     def ids(self) -> list:
         """
         Method that returns a list of all id's of the services repo
         :return:
         """
-        return self.get_repo().ids()
+        return self.repo.ids()
 
     def add(self, person_or_event):
         """
@@ -45,7 +46,7 @@ class Service:
         :param person_or_event:
         :return:
         """
-        self.get_repo().add(person_or_event)
+        self.repo.add(person_or_event)
 
     def delete(self, object_id:str):
         """
@@ -53,7 +54,7 @@ class Service:
         :param object_id:
         :return:
         """
-        self.get_repo().delete(object_id)
+        self.repo.delete(object_id)
 
     def item_by_id(self, search_id):
         """
@@ -61,7 +62,14 @@ class Service:
         :param search_id:
         :return:
         """
-        return self.get_repo().items_by_id()[search_id]
+        return self.repo.items_by_id()[search_id]
+
+    def number_of_items(self) -> int:
+        """
+        Method for returning the number of items in a repository
+        :return:
+        """
+        return self.repo.number_of_items()
 
     @staticmethod
     def generate_rand_string(use_special_characters_and_digits = False, length = 8):
@@ -84,7 +92,7 @@ class Service:
         Method for generating a unique id
         :return:
         """
-        ids = self.get_repo().ids()
+        ids = self.repo.ids()
         rand_id = self.generate_rand_string(True, 4)
 
         while rand_id in ids:
@@ -107,11 +115,18 @@ class PeopleService(Service):
             modified_person.set_address(new_address)
 
     def generate_rand_person(self):
+        valid_names = [
+            "Davidenko",
+            "Grasu",
+            "Pianis",
+            "Demeterius",
+            "Robila"
+        ]
         """
         Method for generating a random person
         :return:
         """
-        return Person(self.generate_random_id(), self.generate_rand_string(length=random.randrange(3,30)), self.generate_rand_string(True, random.randrange(1,30)))
+        return Person(self.generate_random_id(), random.choice(valid_names), self.generate_rand_string(True, random.randrange(1,30)))
 
 class EventService(Service):
     """
@@ -175,7 +190,7 @@ class AttendanceService(Service):
         :param criteria:
         :return:
         """
-        return self.get_repo().attendances_by_param(search_id, criteria)
+        return self.repo.attendances_by_param(search_id, criteria)
 
     def delete_all_attendances_by_param(self, delete_by_id, criteria = "person"):
         """
@@ -184,7 +199,16 @@ class AttendanceService(Service):
         :param criteria:
         :return:
         """
-        self.get_repo().delete_all_attendances_by_param(delete_by_id, criteria)
+        self.repo.delete_all_attendances_by_param(delete_by_id, criteria)
+
+    def nr_attendances_by_param(self, search_id, criteria = "event"):
+        """
+        Method for number of attendances for an event or person
+        :param search_id:
+        :param criteria:
+        :return:
+        """
+        return self.repo.nr_attendances_by_param(search_id, criteria)
 
     def generate_random_attendance(self, people_list, event_list):
         """
@@ -202,7 +226,7 @@ class AttendanceService(Service):
             rand_tuple = random.choice(all_tuples)
             attendance = Attendance(rand_tuple[0], rand_tuple[1])
             try:
-                Validation.validate_id_uniqueness(attendance, self.get_repo())
+                Validation.validate_id_uniqueness(attendance, self.repo)
                 return attendance
             except ValidationError:
                 pass
@@ -214,40 +238,37 @@ class AttendanceService(Service):
         :return:
         """
         return [x.event() for x in sorted(self.attendances_by_param(person_id, "person"), key=lambda item:(item.event().description(), item.event().date()))]
-    
-    def people_with_most_attendances(self):
+
+    def first_k_items_by_criteria(self, service, criteria:str, k:int):
         """
-        Return a tuple of a list of the people with the most events and the number of events they attended
+        Get top k items from service with most attendances
+        :param service:
+        :param criteria:
+        :param k:
         :return:
         """
-        def __find_person_by_id_in_list(pid, plist):
-            for i in plist:
-                if i.id() == pid: return i
-            return None
+        final_list = service.items()
+        return sorted(final_list, key = lambda item: self.nr_attendances_by_param(item.id(), criteria), reverse=True)[:k]
 
-        people_list = []
-        for elem in self.items():
-            people_list.append(elem.person())
-        attendances = {}
-        for person in people_list:
-            attendances[person.id()] = len(self.attendances_by_param(person.id(), "person"))
-        max_attendances = max(attendances.values())
-        people_most_events = []
-        for key in attendances.keys():
-            if attendances[key] == max_attendances: people_most_events.append(__find_person_by_id_in_list(key, people_list))
-        return people_most_events, max_attendances
-
-    def first_fifth_events_by_participants(self, event_service):
+    def top_k_interlacing(self, person_service, event_service, k:int):
         """
-        Get top 20% of events with most participants
+        Method for getting which of the top k people by events attends a top k event by people
+        :param person_service:
         :param event_service:
+        :param k:
         :return:
         """
-        final_list = []
-        for el in event_service.items():
-            final_list.append((el,len(self.attendances_by_param(el.id()))))
-        p = len(event_service.items())/5+1
-        return sorted(final_list, key = lambda item: item[1], reverse=True)[:int(p)]
+        top_k_people = self.first_k_items_by_criteria(person_service, "person", k)
+        top_k_events = self.first_k_items_by_criteria(event_service, "event", k)
+        k_events_people = []
+        for person in top_k_people:
+            for event in top_k_events:
+                try:
+                    Validation.validate_ids_presence(person.id() + event.id(), self.repo)
+                    k_events_people.append(self.item_by_id(person.id()+event.id()))
+                except ValidationError:
+                    continue
+        return k_events_people
 
 
 
